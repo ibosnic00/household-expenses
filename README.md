@@ -52,8 +52,8 @@ A React-based web application for tracking and managing household expenses betwe
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/household-expense-tracker.git
-   cd household-expense-tracker
+   git clone https://github.com/ibosnic00/household-expenses.git
+   cd household-expenses
    ```
 
 2. **Install dependencies**
