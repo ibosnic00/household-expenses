@@ -7,8 +7,10 @@ export type Person = {
     category: string;
     amount: number;
     paidBy: string;
+    paidFor: string;
+    firstPersonShare: number;
+    secondPersonShare: number;
     contribution: [number, number];
-    paidFor: 'Common' | string;
   }
   
   export type HouseholdData = {

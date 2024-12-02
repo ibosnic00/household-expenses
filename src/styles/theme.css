@@ -17,7 +17,7 @@ body {
 }
 
 .app-container {
-    min-width: 600px;
+    min-width: 650px;
 }
 
 .main-layout {
@@ -31,7 +31,7 @@ body {
 
 .left-column,
 .right-column {
-    min-width: 600px;
+    min-width: 650px;
 }
 
 .card {
@@ -47,10 +47,15 @@ body {
     border-collapse: collapse;
 }
 
-.expense-table th,
+.expense-table th{
+    text-align: center;
+    padding: 2px 4px;
+    border-bottom: 3px solid var(--border-color);
+}
+
 .expense-table td {
-    text-align: left;
-    padding: 2px;
+    text-align: center;
+    padding: 2px 4px;
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -59,7 +64,6 @@ body {
     background: var(--surface-color);
     padding: 20px;
     border-radius: 18px;
-    min-height: 850px;
 }
 
 .total-expenses {
@@ -140,7 +144,7 @@ body {
     width: 100%;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 650px) {
     .input-group {
         flex-direction: column;
         gap: 8px;
@@ -238,4 +242,27 @@ select.input-field {
 
 .remove-button:hover {
     opacity: 0.6;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+
+.section-header.clickable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.section-header.clickable:hover {
+    opacity: 0.8;
+}
+
+.toggle-arrow {
+    font-size: 0.7em;
+    padding-left: 1rem;
+    vertical-align: middle;
 }

@@ -27,7 +27,6 @@ const App: React.FC = () => {
     let newTotalPaid = [0, 0];
     let newExpectedContributions = [0, 0];
 
-    // Calculate total expenses and total paid
     expenses.forEach((expense) => {
       newTotalExpenses = Math.round((newTotalExpenses + expense.amount) * 100) / 100;
       
@@ -35,12 +34,11 @@ const App: React.FC = () => {
         newTotalPaid[0] = Math.round((newTotalPaid[0] + expense.amount) * 100) / 100;
       } else if (expense.paidBy === persons[1].name) {
         newTotalPaid[1] = Math.round((newTotalPaid[1] + expense.amount) * 100) / 100;
-      } else if (expense.paidBy === 'Both' && expense.contribution) {
+      } else if (expense.paidBy === 'Both') {
         newTotalPaid[0] = Math.round((newTotalPaid[0] + expense.contribution[0]) * 100) / 100;
         newTotalPaid[1] = Math.round((newTotalPaid[1] + expense.contribution[1]) * 100) / 100;
       }
 
-      // Calculate expected contributions based on paidFor
       if (expense.paidFor === 'Common') {
         newExpectedContributions[0] += Math.round(expense.amount * incomeRatios[0] * 100) / 100;
         newExpectedContributions[1] += Math.round(expense.amount * incomeRatios[1] * 100) / 100;
@@ -51,7 +49,6 @@ const App: React.FC = () => {
       }
     });
 
-    // Calculate balances
     const newBalances = newTotalPaid.map((paid, i) =>
       Math.round((paid - newExpectedContributions[i]) * 100) / 100
     );
@@ -86,7 +83,12 @@ const App: React.FC = () => {
               addExpense={addExpense}
             />
           </div>
-          <ExpenseTable expenses={expenses} removeExpense={removeExpense} />
+          <ExpenseTable 
+            expenses={expenses} 
+            removeExpense={removeExpense} 
+            personAName={persons[0].name || '1st'}
+            personBName={persons[1].name || '2nd'}
+          />
         </div>
         <div className="right-column">
           <Summary

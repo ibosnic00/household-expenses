@@ -8,11 +8,15 @@ interface InputFormProps {
 }
 
 const InputForm: React.FC<InputFormProps> = ({ persons, updatePersons, addExpense }) => {
+    const [showExpenseForm, setShowExpenseForm] = useState(true);
+    const [showSetupForm, setShowSetupForm] = useState(true);
     const [expense, setExpense] = useState({
         category: '',
         amount: 0,
         paidBy: '',
-        contribution: [0, 0],
+        firstPersonShare: 0,
+        secondPersonShare: 0,
+        contribution: [0, 0] as [number, number],
         paidFor: 'Common' as 'Common' | string,
     });
 
@@ -35,42 +39,54 @@ const InputForm: React.FC<InputFormProps> = ({ persons, updatePersons, addExpens
         setExpense(prev => {
             const newExpense = { ...prev, paidFor: value };
             if (value === persons[0]?.name) {
-                newExpense.contribution = [prev.amount, 0];
+                newExpense.firstPersonShare = prev.amount;
+                newExpense.secondPersonShare = 0;
             } else if (value === persons[1]?.name) {
-                newExpense.contribution = [0, prev.amount];
+                newExpense.firstPersonShare = 0;
+                newExpense.secondPersonShare = prev.amount;
             } else {
                 const totalIncome = persons.reduce((sum, person) => sum + person.income, 0);
                 const ratio = totalIncome > 0 ? persons.map((p) => p.income / totalIncome) : [0.5, 0.5];
-                newExpense.contribution = [
-                    Math.round(prev.amount * ratio[0] * 100) / 100,
-                    Math.round(prev.amount * ratio[1] * 100) / 100,
-                ];
+                newExpense.firstPersonShare = Math.round(prev.amount * ratio[0] * 100) / 100;
+                newExpense.secondPersonShare = Math.round(prev.amount * ratio[1] * 100) / 100;
             }
             return newExpense;
         });
     };
 
     const handlePaidByChange = (value: string) => {
-        setExpense((prev) => ({
-            ...prev,
-            paidBy: value,
-        }));
+        setExpense(prev => {
+            const newExpense = { ...prev, paidBy: value };
+            if (value === persons[0]?.name) {
+                newExpense.contribution = [prev.amount, 0];
+            } else if (value === persons[1]?.name) {
+                newExpense.contribution = [0, prev.amount];
+            } else if (value === 'Both') {
+                const totalIncome = persons.reduce((sum, person) => sum + person.income, 0);
+                const ratio = totalIncome > 0 ? persons.map((p) => p.income / totalIncome) : [0.5, 0.5];
+                newExpense.contribution = [
+                    Math.round(prev.amount * ratio[0] * 100) / 100,
+                    Math.round(prev.amount * ratio[1] * 100) / 100
+                ];
+            }
+            return newExpense;
+        });
     };
 
     const handleAmountChange = (value: number) => {
         setExpense(prev => {
             const newExpense = { ...prev, amount: value };
             if (prev.paidFor === persons[0]?.name) {
-                newExpense.contribution = [value, 0];
+                newExpense.firstPersonShare = value;
+                newExpense.secondPersonShare = 0;
             } else if (prev.paidFor === persons[1]?.name) {
-                newExpense.contribution = [0, value];
+                newExpense.firstPersonShare = 0;
+                newExpense.secondPersonShare = value;
             } else {
                 const totalIncome = persons.reduce((sum, person) => sum + person.income, 0);
                 const ratio = totalIncome > 0 ? persons.map((p) => p.income / totalIncome) : [0.5, 0.5];
-                newExpense.contribution = [
-                    Math.round(value * ratio[0] * 100) / 100,
-                    Math.round(value * ratio[1] * 100) / 100,
-                ];
+                newExpense.firstPersonShare = Math.round(value * ratio[0] * 100) / 100;
+                newExpense.secondPersonShare = Math.round(value * ratio[1] * 100) / 100;
             }
             return newExpense;
         });
@@ -82,11 +98,40 @@ const InputForm: React.FC<InputFormProps> = ({ persons, updatePersons, addExpens
             alert('Please select who paid the expense.');
             return;
         }
-        addExpense(expense as Expense);
+        
+        let firstShare = 0;
+        let secondShare = 0;
+
+        if (expense.paidFor === 'Common') {
+            const totalIncome = persons.reduce((sum, person) => sum + person.income, 0);
+            const ratio = totalIncome > 0 ? persons.map((p) => p.income / totalIncome) : [0.5, 0.5];
+            firstShare = Math.round(expense.amount * ratio[0] * 100) / 100;
+            secondShare = Math.round(expense.amount * ratio[1] * 100) / 100;
+        } else if (expense.paidFor === persons[0].name) {
+            firstShare = expense.amount;
+            secondShare = 0;
+        } else {
+            firstShare = 0;
+            secondShare = expense.amount;
+        }
+
+        const newExpense: Expense = {
+            category: expense.category,
+            amount: expense.amount,
+            paidBy: expense.paidBy,
+            paidFor: expense.paidFor,
+            firstPersonShare: firstShare,
+            secondPersonShare: secondShare,
+            contribution: expense.contribution
+        };
+
+        addExpense(newExpense);
         setExpense({
             category: '',
             amount: 0,
             paidBy: persons[0]?.name || '',
+            firstPersonShare: 0,
+            secondPersonShare: 0,
             contribution: [0, 0],
             paidFor: 'Common',
         });
@@ -94,123 +139,150 @@ const InputForm: React.FC<InputFormProps> = ({ persons, updatePersons, addExpens
 
     return (
         <div>
-            <h2 className="section-title">Setup Household</h2>
-            <div className="input-group">
-                <div className="input-field-container">
-                    <label className="input-label">Name</label>
-                    {persons.map((person, index) => (
-                        <input
-                            key={index}
-                            className="input-field"
-                            type="text"
-                            placeholder="Name"
-                            value={person.name}
-                            onChange={(e) => handlePersonChange(index, 'name', e.target.value)}
-                        />
-                    ))}
-                </div>
-                <div className="input-field-container">
-                    <label className="input-label">Income</label>
-                    {persons.map((person, index) => (
-                        <input
-                            key={index}
-                            className="input-field"
-                            type="number"
-                            placeholder="Income"
-                            value={person.income}
-                            onChange={(e) => handlePersonChange(index, 'income', Number(e.target.value))}
-                        />
-                    ))}
-                </div>
+            <div 
+                className="section-header clickable"
+                onClick={() => setShowSetupForm(!showSetupForm)}
+            >
+                <h2 className="section-title">
+                    Setup Household <span className="toggle-arrow">{showSetupForm ? '▼' : '▶'}</span>
+                </h2>
             </div>
-            <h2 className="section-title">Add Expense</h2>
-            <form onSubmit={handleExpenseSubmit}>
+
+            {showSetupForm && (
                 <div className="input-group">
                     <div className="input-field-container">
-                        <label className="input-label">Category</label>
-                        <input
-                            className="input-field"
-                            type="text"
-                            placeholder="Category"
-                            value={expense.category}
-                            onChange={(e) => setExpense({ ...expense, category: e.target.value })}
-                        />
+                        <label className="input-label">Name</label>
+                        {persons.map((person, index) => (
+                            <input
+                                key={index}
+                                className="input-field"
+                                type="text"
+                                placeholder="Name"
+                                value={person.name}
+                                onChange={(e) => handlePersonChange(index, 'name', e.target.value)}
+                            />
+                        ))}
                     </div>
                     <div className="input-field-container">
-                        <label className="input-label">Amount</label>
-                        <input
-                            className="input-field"
-                            type="number"
-                            placeholder="Amount"
-                            value={expense.amount}
-                            onChange={(e) => handleAmountChange(Number(e.target.value))}
-                        />
-                    </div>
-                    <div className="input-field-container">
-                        <label className="input-label">Paid For</label>
-                        <select
-                            className="input-field"
-                            value={expense.paidFor}
-                            onChange={(e) => handlePaidForChange(e.target.value)}
-                        >
-                            <option value="Common">Common</option>
-                            {persons.map((person, index) => (
-                                <option key={index} value={person.name}>
-                                    {person.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className="input-field-container">
-                        <label className="input-label">Paid By</label>
-                        <select
-                            className="input-field"
-                            value={expense.paidBy}
-                            onChange={(e) => handlePaidByChange(e.target.value)}
-                        >
-                            {persons.map((person, index) => (
-                                <option key={index} value={person.name}>
-                                    {person.name}
-                                </option>
-                            ))}
-                            {expense.paidFor === 'Common' && <option value="Both">Both</option>}
-                        </select>
+                        <label className="input-label">Income</label>
+                        {persons.map((person, index) => (
+                            <input
+                                key={index}
+                                className="input-field"
+                                type="number"
+                                placeholder="Income"
+                                value={person.income}
+                                onChange={(e) => handlePersonChange(index, 'income', Number(e.target.value))}
+                            />
+                        ))}
                     </div>
                 </div>
-                {expense.paidBy === 'Both' && (
+            )}
+            
+            <div 
+                className="section-header clickable"
+                onClick={() => setShowExpenseForm(!showExpenseForm)}
+            >
+                <h2 className="section-title">
+                    Add Expense <span className="toggle-arrow">{showExpenseForm ? '▼' : '▶'}</span>
+                </h2>
+            </div>
+
+            {showExpenseForm && (
+                <form onSubmit={handleExpenseSubmit}>
                     <div className="input-group">
                         <div className="input-field-container">
-                            <label className="input-label">{persons[0].name} Contribution</label>
+                            <label className="input-label">Category</label>
                             <input
                                 className="input-field"
-                                type="number"
-                                value={expense.contribution[0]}
-                                onChange={(e) =>
-                                    setExpense((prev) => ({
-                                        ...prev,
-                                        contribution: [Number(e.target.value), prev.contribution[1]],
-                                    }))
-                                }
+                                type="text"
+                                placeholder="Category"
+                                value={expense.category}
+                                onChange={(e) => setExpense({ ...expense, category: e.target.value })}
                             />
                         </div>
                         <div className="input-field-container">
-                            <label className="input-label">{persons[1].name} Contribution</label>
+                            <label className="input-label">Amount</label>
                             <input
                                 className="input-field"
                                 type="number"
-                                value={expense.contribution[1]}
-                                onChange={(e) =>
-                                    setExpense((prev) => ({
-                                        ...prev,
-                                        contribution: [prev.contribution[0], Number(e.target.value)],
-                                    }))
-                                }
+                                placeholder="Amount"
+                                value={expense.amount}
+                                onChange={(e) => handleAmountChange(Number(e.target.value))}
                             />
                         </div>
+                        <div className="input-field-container">
+                            <label className="input-label">Paid For</label>
+                            <select
+                                className="input-field"
+                                value={expense.paidFor}
+                                onChange={(e) => handlePaidForChange(e.target.value)}
+                            >
+                                <option value="Common">Common</option>
+                                {persons.map((person, index) => (
+                                    <option key={index} value={person.name}>
+                                        {person.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="input-field-container">
+                            <label className="input-label">Paid By</label>
+                            <select
+                                className="input-field"
+                                value={expense.paidBy}
+                                onChange={(e) => handlePaidByChange(e.target.value)}
+                            >
+                                {persons.map((person, index) => (
+                                    <option key={index} value={person.name}>
+                                        {person.name}
+                                    </option>
+                                ))}
+                                {expense.paidFor === 'Common' && <option value="Both">Both</option>}
+                            </select>
+                        </div>
                     </div>
-                )}
-                <button className="button" type="submit">Add Expense</button>
-            </form>
+                    {expense.paidBy === 'Both' && (
+                        <div className="input-group">
+                            <div className="input-field-container">
+                                <label className="input-label">{persons[0].name} Contribution</label>
+                                <input
+                                    className="input-field"
+                                    type="number"
+                                    value={expense.contribution[0]}
+                                    onChange={(e) =>
+                                        setExpense((prev) => ({
+                                            ...prev,
+                                            contribution: [
+                                                Number(e.target.value),
+                                                Math.round((prev.amount - Number(e.target.value)) * 100) / 100
+                                            ],
+                                        }))
+                                    }
+                                />
+                            </div>
+                            <div className="input-field-container">
+                                <label className="input-label">{persons[1].name} Contribution</label>
+                                <input
+                                    className="input-field"
+                                    type="number"
+                                    value={expense.contribution[1]}
+                                    onChange={(e) =>
+                                        setExpense((prev) => ({
+                                            ...prev,
+                                            contribution: [
+                                                Math.round((prev.amount - Number(e.target.value)) * 100) / 100,
+                                                Number(e.target.value)
+                                            ],
+                                        }))
+                                    }
+                                />
+                            </div>
+                        </div>
+                    )}
+                    <button className="button" type="submit">Add Expense</button>
+                </form>
+            )}
         </div>
     );
 };
