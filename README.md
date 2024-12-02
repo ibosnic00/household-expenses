@@ -1,6 +1,10 @@
 # Household Expense Tracker
 
-A React-based web application for tracking and managing household expenses between two people. Perfect for couples, roommates, or any two people sharing expenses.
+A React + TypeScript application for tracking shared household expenses between two people. Features proportional expense splitting, category-based expense tracking, and visual spending analysis.
+
+🚀 **[Live Demo](https://ibosnic00.github.io/household-expenses/)**
+
+> This project was entirely developed using [Cursor](https://cursor.sh/) editor and [Claude](https://www.anthropic.com/claude) AI assistant, showcasing the potential of AI-assisted development.
 
 ![Expense Tracker Demo](misc/demo.jpg)
 
