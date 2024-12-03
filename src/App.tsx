@@ -73,7 +73,7 @@ const App: React.FC = () => {
 
   return (
     <div className="app-container">
-      <h1>Expense Tracker</h1>
+      <h2>Household Expense Tracker</h2>
       <div className="main-layout">
         <div className="left-column">
           <div className="card">

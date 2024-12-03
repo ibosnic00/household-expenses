@@ -92,7 +92,7 @@ body {
 }
 
 .chart-container {
-    margin-top: 20px;
+    margin-top: 2rem;
     height: 300px;
 }
 
@@ -216,17 +216,17 @@ select.input-field {
 }
 
 .summary-table td.positive {
-    color: green;
+    color: var(--positive);
 }
 
 .summary-table td.negative {
-    color: red;
+    color: var(--negative);
 }
 
 .balance-text {
     margin-top: 16px;
     font-size: 1rem;
-    color: red;
+    color: var(--negative);
     text-align: left;
 }
 

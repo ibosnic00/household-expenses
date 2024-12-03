@@ -61,6 +61,8 @@ const Summary: React.FC<SummaryProps> = ({
   };
 
   const pieChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'right' as const,
