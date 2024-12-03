@@ -6,7 +6,7 @@ A React + TypeScript application for tracking shared household expenses between 
 
 > This project was entirely developed using [Cursor](https://cursor.sh/) editor and [Claude](https://www.anthropic.com/claude) AI assistant, showcasing the potential of AI-assisted development.
 
-![Expense Tracker Demo](misc/demo.jpg)
+![Expense Tracker Demo](misc/demo.gif)
 
 ## Features
 
