@@ -2,6 +2,8 @@ import React from 'react';
 import { Person, Expense } from '../types';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { generatePDF } from '../utils/pdfGenerator';
+import { useRef } from 'react';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -22,6 +24,8 @@ const Summary: React.FC<SummaryProps> = ({
   balances,
   expenses,
 }) => {
+  const chartRef = useRef<ChartJS<"pie">>(null);
+
   const categoryTotals = expenses.reduce((acc, expense) => {
     const category = expense.category || 'Uncategorized';
     acc[category] = (acc[category] || 0) + expense.amount;
@@ -83,6 +87,33 @@ const Summary: React.FC<SummaryProps> = ({
     },
   };
 
+  const handleExportPDF = () => {
+    const fileName = prompt('Enter a name for the PDF file:', 'household-expenses');
+    if (fileName) {
+      const chartImage = chartRef.current?.toBase64Image() || '';
+      const balance = balances[0];
+      const balanceText = balance > 0 
+        ? `${persons[1].name} owes ${persons[0].name} ${balance.toFixed(2)}€`
+        : `${persons[0].name} owes ${persons[1].name} ${Math.abs(balance).toFixed(2)}€`;
+            
+      const personSummaries = persons.map((person, index) => ({
+        name: person.name,
+        totalPaid: totalPaid[index],
+        expectedContribution: expectedContributions[index]
+      }));
+
+      generatePDF(
+        expenses, 
+        totalExpenses, 
+        persons, 
+        fileName, 
+        chartImage, 
+        balanceText,
+        personSummaries
+      );
+    }
+  };
+
   return (
     <div className="summary-section">
       <h2 className="section-title">Summary</h2>
@@ -126,8 +157,18 @@ const Summary: React.FC<SummaryProps> = ({
       <div className="chart-section">
         <h3 className="section-title-small">Expense Distribution by Category</h3>
         <div className="chart-container">
-          <Pie data={pieChartData} options={pieChartOptions} />
+          <Pie ref={chartRef} data={pieChartData} options={pieChartOptions} />
         </div>
+        {expenses.length > 0 && (
+          <div className="export-button-container">
+            <button 
+              className="export-button"
+              onClick={handleExportPDF}
+            >
+              Export to PDF
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
