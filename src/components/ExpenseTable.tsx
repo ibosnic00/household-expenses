@@ -21,13 +21,13 @@ const ExpenseTable: React.FC<ExpenseTableProps> = ({
         <table className="expense-table">
           <thead>
             <tr>
-              <th>Category</th>
+              <th></th>
               <th>Amount</th>
               <th>Paid By</th>
               <th>Paid For</th>
               <th>{personAName}'s Share</th>
               <th>{personBName}'s Share</th>
-              <th>Action</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -40,8 +40,12 @@ const ExpenseTable: React.FC<ExpenseTableProps> = ({
                 <td>{expense.firstPersonShare.toFixed(2)}€</td>
                 <td>{expense.secondPersonShare.toFixed(2)}€</td>
                 <td>
-                  <button onClick={() => removeExpense(index)} className="remove-button">
-                    Remove
+                  <button 
+                    onClick={() => removeExpense(index)} 
+                    className="remove-button"
+                    title="Remove expense"
+                  >
+                    ✕
                   </button>
                 </td>
               </tr>
