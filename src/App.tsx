@@ -29,7 +29,7 @@ const App: React.FC = () => {
 
     expenses.forEach((expense) => {
       newTotalExpenses = Math.round((newTotalExpenses + expense.amount) * 100) / 100;
-      
+
       if (expense.paidBy === persons[0].name) {
         newTotalPaid[0] = Math.round((newTotalPaid[0] + expense.amount) * 100) / 100;
       } else if (expense.paidBy === persons[1].name) {
@@ -83,12 +83,13 @@ const App: React.FC = () => {
               addExpense={addExpense}
             />
           </div>
-          <ExpenseTable 
-            expenses={expenses} 
-            removeExpense={removeExpense} 
+          <div className="card"><ExpenseTable
+            expenses={expenses}
+            removeExpense={removeExpense}
             personAName={persons[0].name || '1st'}
             personBName={persons[1].name || '2nd'}
           />
+          </div>
         </div>
         <div className="right-column">
           <Summary

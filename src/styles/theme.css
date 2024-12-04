@@ -7,6 +7,7 @@
     --positive: #4CAF50;
     --negative: #f44336;
     --border-color: rgba(255, 255, 255, 0.12);
+    --surface-color-hover: #3d3d3d;
 }
 
 body {
@@ -22,23 +23,46 @@ body {
 
 .main-layout {
     display: grid;
-    grid-template-columns: 2fr 10fr;
-    gap: 24px;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
     align-items: start;
-    max-width: none;
-    margin: 0;
+    max-width: calc(100vw - 2rem);
 }
 
 .left-column,
 .right-column {
-    min-width: 650px;
+    width: 100%;
 }
 
 .card {
     background: var(--surface-color);
     border-radius: 18px;
     margin-bottom: 20px;
-    padding: 1em;
+    padding: 0.5rem;
+    max-width: calc(100vw - 2rem);
+    box-sizing: border-box;
+}
+
+.minimized-card {
+    cursor: pointer;
+    padding: 10px;
+    margin-bottom: 0px;
+    text-align: left;
+    transition: background-color 0.3s;
+}
+
+
+.maximized-card {
+    padding: 10px;
+    text-align: left;
+}
+
+.minimized-card:hover {
+    background-color: var(--surface-color-hover);
+}
+
+.settings-icon {
+    font-size: 1.3em;
 }
 
 /* Table styles */
@@ -61,6 +85,8 @@ body {
 
 /* Summary styles */
 .summary-section {
+    
+    max-width: calc(100vw - 4rem);
     background: var(--surface-color);
     padding: 20px;
     border-radius: 18px;
@@ -146,7 +172,6 @@ body {
 
 @media (max-width: 650px) {
     .input-group {
-        flex-direction: column;
         gap: 8px;
     }
 }
@@ -182,9 +207,9 @@ select.input-field {
 .section-title {
     font-size: 1.5rem;
     color: var(--text-primary);
-    margin-bottom: 16px;
+    margin: 1px;
     border-bottom: 2px solid var(--primary-color);
-    padding-bottom: 8px;
+    padding-bottom: 1px;
     text-align: left;
 }
 
@@ -265,4 +290,137 @@ select.input-field {
     font-size: 0.7em;
     padding-left: 1rem;
     vertical-align: middle;
+}
+
+@media screen and (max-width: 768px) {
+    .main-layout {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 0 8px;
+    }
+
+    .left-column,
+    .right-column {
+        min-width: unset;  /* Remove min-width constraint */
+        width: 100%;
+    }
+
+    .input-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .input-field-container {
+        width: 100%;
+    }
+
+    .input-field {
+        max-width: 100%;  /* Allow inputs to take full width */
+        padding: 8px;     /* Larger touch targets */
+    }
+
+    .card {
+        padding: 12px;
+        margin-bottom: 16px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .section-title {
+        font-size: 1.2rem;  /* Slightly smaller titles on mobile */
+    }
+
+    /* Make buttons more touch-friendly */
+    .button {
+        padding: 10px 16px;
+        width: 100%;        /* Full width buttons */
+        margin: 8px 0;
+    }
+
+    /* Add table scroll container */
+    .expense-table-container {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 16px;
+    }
+
+    .expense-table {
+        width: 100%;
+    }
+
+    .expense-table th,
+    .expense-table td {
+        white-space: nowrap;
+        padding: 8px 12px;
+    }
+
+    /* Adjust column widths */
+    .expense-table th:nth-child(1),
+    .expense-table td:nth-child(1) { min-width: 80px; }
+    
+    .expense-table th:nth-child(2),
+    .expense-table td:nth-child(2) { min-width: 70px; }
+    
+    .expense-table th:nth-child(3),
+    .expense-table td:nth-child(3),
+    .expense-table th:nth-child(4),
+    .expense-table td:nth-child(4) { min-width: 90px; }
+    
+    .expense-table th:nth-child(5),
+    .expense-table td:nth-child(5),
+    .expense-table th:nth-child(6),
+    .expense-table td:nth-child(6) { min-width: 100px; }
+
+    /* Only apply these styles on small screens */
+    .summary-section {
+        padding: 16px;
+        min-height: unset;
+    }
+
+    .persons-summary {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .person-details {
+        padding: 12px;
+        background: var(--surface-color);
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+    }
+
+    .total-expenses {
+        font-size: 1.2rem;
+        margin-bottom: 16px;
+    }
+
+    .summary-table-container {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 16px;
+    }
+
+    .summary-table {
+        min-width: 300px;
+        margin-bottom: 12px;
+    }
+
+    .summary-table th,
+    .summary-table td {
+        padding: 8px;
+        white-space: nowrap;
+    }
+
+    .chart-container {
+        margin-top: 16px;
+        height: 250px;
+    }
+
+    .balance-text {
+        font-size: 0.9rem;
+        margin-top: 12px;
+    }
 }

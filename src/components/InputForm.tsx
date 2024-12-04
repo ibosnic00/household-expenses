@@ -137,8 +137,27 @@ const InputForm: React.FC<InputFormProps> = ({ persons, updatePersons, addExpens
         });
     };
 
+    const handleRestore = () => {
+        setShowSetupForm(true);
+        setShowExpenseForm(true);
+    };
+
+    const handleNumberFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+        if (e.target.value === '0') {
+            e.target.value = '';
+        }
+    };
+
+    if (!showSetupForm && !showExpenseForm) {
+        return (
+            <div className="card minimized-card" onClick={handleRestore}>
+                <span className="settings-icon">Settings ⚙️</span>
+            </div>
+        );
+    }
+
     return (
-        <div>
+        <div className='maximized-card'>
             <div 
                 className="section-header clickable"
                 onClick={() => setShowSetupForm(!showSetupForm)}
@@ -172,6 +191,7 @@ const InputForm: React.FC<InputFormProps> = ({ persons, updatePersons, addExpens
                                 type="number"
                                 placeholder="Income"
                                 value={person.income}
+                                onFocus={handleNumberFocus}
                                 onChange={(e) => handlePersonChange(index, 'income', Number(e.target.value))}
                             />
                         ))}
@@ -208,6 +228,7 @@ const InputForm: React.FC<InputFormProps> = ({ persons, updatePersons, addExpens
                                 type="number"
                                 placeholder="Amount"
                                 value={expense.amount}
+                                onFocus={handleNumberFocus}
                                 onChange={(e) => handleAmountChange(Number(e.target.value))}
                             />
                         </div>
@@ -250,6 +271,7 @@ const InputForm: React.FC<InputFormProps> = ({ persons, updatePersons, addExpens
                                     className="input-field"
                                     type="number"
                                     value={expense.contribution[0]}
+                                    onFocus={handleNumberFocus}
                                     onChange={(e) =>
                                         setExpense((prev) => ({
                                             ...prev,
@@ -267,6 +289,7 @@ const InputForm: React.FC<InputFormProps> = ({ persons, updatePersons, addExpens
                                     className="input-field"
                                     type="number"
                                     value={expense.contribution[1]}
+                                    onFocus={handleNumberFocus}
                                     onChange={(e) =>
                                         setExpense((prev) => ({
                                             ...prev,
