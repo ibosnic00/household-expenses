@@ -163,7 +163,7 @@ const InputForm: React.FC<InputFormProps> = ({ persons, updatePersons, addExpens
                 onClick={() => setShowSetupForm(!showSetupForm)}
             >
                 <h2 className="section-title">
-                    Setup Household <span className="toggle-arrow">{showSetupForm ? '▼' : '▶'}</span>
+                    Setup Household <span className="toggle-arrow">{showSetupForm ? '⌵' : '❯'}</span>
                 </h2>
             </div>
 
@@ -176,7 +176,7 @@ const InputForm: React.FC<InputFormProps> = ({ persons, updatePersons, addExpens
                                 key={index}
                                 className="input-field"
                                 type="text"
-                                placeholder="Name"
+                                placeholder={`${index === 0 ? 'First' : 'Second'} person`}
                                 value={person.name}
                                 onChange={(e) => handlePersonChange(index, 'name', e.target.value)}
                             />
@@ -189,7 +189,7 @@ const InputForm: React.FC<InputFormProps> = ({ persons, updatePersons, addExpens
                                 key={index}
                                 className="input-field"
                                 type="number"
-                                placeholder="Income"
+                                placeholder={`${index === 0 ? 'First' : 'Second'} person's salary (€)`}
                                 value={person.income}
                                 onFocus={handleNumberFocus}
                                 onChange={(e) => handlePersonChange(index, 'income', Number(e.target.value))}
@@ -204,7 +204,7 @@ const InputForm: React.FC<InputFormProps> = ({ persons, updatePersons, addExpens
                 onClick={() => setShowExpenseForm(!showExpenseForm)}
             >
                 <h2 className="section-title">
-                    Add Expense <span className="toggle-arrow">{showExpenseForm ? '▼' : '▶'}</span>
+                    Add Expense <span className="toggle-arrow">{showExpenseForm ? '⌵' : '❯'}</span>
                 </h2>
             </div>
 
@@ -216,7 +216,7 @@ const InputForm: React.FC<InputFormProps> = ({ persons, updatePersons, addExpens
                             <input
                                 className="input-field"
                                 type="text"
-                                placeholder="Category"
+                                placeholder="Expense title"
                                 value={expense.category}
                                 onChange={(e) => setExpense({ ...expense, category: e.target.value })}
                             />
@@ -226,7 +226,7 @@ const InputForm: React.FC<InputFormProps> = ({ persons, updatePersons, addExpens
                             <input
                                 className="input-field"
                                 type="number"
-                                placeholder="Amount"
+                                placeholder="€"
                                 value={expense.amount}
                                 onFocus={handleNumberFocus}
                                 onChange={(e) => handleAmountChange(Number(e.target.value))}

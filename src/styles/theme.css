@@ -205,7 +205,7 @@ select.input-field {
 
 
 .section-title {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     color: var(--text-primary);
     margin: 1px;
     border-bottom: 2px solid var(--primary-color);
@@ -214,7 +214,7 @@ select.input-field {
 }
 
 .section-title-small {
-    font-size: 1.2rem;
+    font-size: 1rem;
     color: var(--text-primary);
     margin-bottom: 10px;
     border-bottom: 1.5px solid var(--primary-color);
@@ -316,7 +316,7 @@ select.input-field {
     }
 
     .input-field {
-        max-width: 100%;  /* Allow inputs to take full width */
+        max-width: 90%;  /* Allow inputs to take full width */
         padding: 8px;     /* Larger touch targets */
     }
 
