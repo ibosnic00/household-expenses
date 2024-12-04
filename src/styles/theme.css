@@ -18,7 +18,7 @@ body {
 }
 
 .app-container {
-    min-width: 650px;
+    min-width: none;
 }
 
 .main-layout {
