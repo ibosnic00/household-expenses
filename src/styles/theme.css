@@ -122,6 +122,10 @@ body {
     height: 300px;
 }
 
+.chart-section {    
+    align-items: center;
+}
+
 /* Button styles */
 .button {
     background-color: var(--primary-color);
@@ -293,6 +297,28 @@ select.input-field {
     vertical-align: middle;
 }
 
+.export-button-container {
+    width: 100%;
+    display: flex;
+    justify-content: right;
+    margin-top: 16px;
+}
+
+.export-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+.export-button:hover {
+    opacity: 1;
+}
+
 @media screen and (max-width: 768px) {
     .main-layout {
         grid-template-columns: 1fr;
@@ -423,5 +449,10 @@ select.input-field {
     .balance-text {
         font-size: 0.9rem;
         margin-top: 12px;
+    }
+
+    .export-button {
+        width: 100%;
+        margin: 16px 0;
     }
 }
