@@ -1,6 +1,7 @@
 export type Person = {
     name: string;
-    income: number;
+    income: number;    
+    salaryRemaining?: number;
   };
   
   export interface Expense {

@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Person, Expense } from '../types';
+import { calculateShares, calculateContributions } from '../utils/expenseCalculations';
 
 interface InputFormProps {
     persons: Person[];
     updatePersons: (persons: Person[]) => void;
     addExpense: (expense: Expense) => void;
+    useLeftoverMethod: boolean;
+    setUseLeftoverMethod: (value: boolean) => void;
 }
 
-const InputForm: React.FC<InputFormProps> = ({ persons, updatePersons, addExpense }) => {
+const InputForm: React.FC<InputFormProps> = ({ persons, updatePersons, addExpense, useLeftoverMethod, setUseLeftoverMethod }) => {
     const [showExpenseForm, setShowExpenseForm] = useState(true);
     const [showSetupForm, setShowSetupForm] = useState(true);
     const [expense, setExpense] = useState({
@@ -37,58 +40,36 @@ const InputForm: React.FC<InputFormProps> = ({ persons, updatePersons, addExpens
 
     const handlePaidForChange = (value: string) => {
         setExpense(prev => {
-            const newExpense = { ...prev, paidFor: value };
-            if (value === persons[0]?.name) {
-                newExpense.firstPersonShare = prev.amount;
-                newExpense.secondPersonShare = 0;
-            } else if (value === persons[1]?.name) {
-                newExpense.firstPersonShare = 0;
-                newExpense.secondPersonShare = prev.amount;
-            } else {
-                const totalIncome = persons.reduce((sum, person) => sum + person.income, 0);
-                const ratio = totalIncome > 0 ? persons.map((p) => p.income / totalIncome) : [0.5, 0.5];
-                newExpense.firstPersonShare = Math.round(prev.amount * ratio[0] * 100) / 100;
-                newExpense.secondPersonShare = Math.round(prev.amount * ratio[1] * 100) / 100;
-            }
-            return newExpense;
+            const [firstPersonShare, secondPersonShare] = calculateShares(prev.amount, value, persons);
+            return {
+                ...prev,
+                paidFor: value,
+                firstPersonShare,
+                secondPersonShare
+            };
         });
     };
 
     const handlePaidByChange = (value: string) => {
         setExpense(prev => {
-            const newExpense = { ...prev, paidBy: value };
-            if (value === persons[0]?.name) {
-                newExpense.contribution = [prev.amount, 0];
-            } else if (value === persons[1]?.name) {
-                newExpense.contribution = [0, prev.amount];
-            } else if (value === 'Both') {
-                const totalIncome = persons.reduce((sum, person) => sum + person.income, 0);
-                const ratio = totalIncome > 0 ? persons.map((p) => p.income / totalIncome) : [0.5, 0.5];
-                newExpense.contribution = [
-                    Math.round(prev.amount * ratio[0] * 100) / 100,
-                    Math.round(prev.amount * ratio[1] * 100) / 100
-                ];
-            }
-            return newExpense;
+            const contribution = calculateContributions(prev.amount, value, persons);
+            return {
+                ...prev,
+                paidBy: value,
+                contribution
+            };
         });
     };
 
     const handleAmountChange = (value: number) => {
         setExpense(prev => {
-            const newExpense = { ...prev, amount: value };
-            if (prev.paidFor === persons[0]?.name) {
-                newExpense.firstPersonShare = value;
-                newExpense.secondPersonShare = 0;
-            } else if (prev.paidFor === persons[1]?.name) {
-                newExpense.firstPersonShare = 0;
-                newExpense.secondPersonShare = value;
-            } else {
-                const totalIncome = persons.reduce((sum, person) => sum + person.income, 0);
-                const ratio = totalIncome > 0 ? persons.map((p) => p.income / totalIncome) : [0.5, 0.5];
-                newExpense.firstPersonShare = Math.round(value * ratio[0] * 100) / 100;
-                newExpense.secondPersonShare = Math.round(value * ratio[1] * 100) / 100;
-            }
-            return newExpense;
+            const [firstPersonShare, secondPersonShare] = calculateShares(value, prev.paidFor, persons);
+            return {
+                ...prev,
+                amount: value,
+                firstPersonShare,
+                secondPersonShare
+            };
         });
     };
 
@@ -99,21 +80,7 @@ const InputForm: React.FC<InputFormProps> = ({ persons, updatePersons, addExpens
             return;
         }
         
-        let firstShare = 0;
-        let secondShare = 0;
-
-        if (expense.paidFor === 'Common') {
-            const totalIncome = persons.reduce((sum, person) => sum + person.income, 0);
-            const ratio = totalIncome > 0 ? persons.map((p) => p.income / totalIncome) : [0.5, 0.5];
-            firstShare = Math.round(expense.amount * ratio[0] * 100) / 100;
-            secondShare = Math.round(expense.amount * ratio[1] * 100) / 100;
-        } else if (expense.paidFor === persons[0].name) {
-            firstShare = expense.amount;
-            secondShare = 0;
-        } else {
-            firstShare = 0;
-            secondShare = expense.amount;
-        }
+        const [firstShare, secondShare] = calculateShares(expense.amount, expense.paidFor, persons);
 
         const newExpense: Expense = {
             category: expense.category,
@@ -147,6 +114,30 @@ const InputForm: React.FC<InputFormProps> = ({ persons, updatePersons, addExpens
             e.target.value = '';
         }
     };
+    const handleSwitchChange = () => {
+        const updatedPersons = persons.map(person => {
+            const updatedPerson = { ...person };
+            if (!useLeftoverMethod) {
+                updatedPerson.salaryRemaining = 0;
+            } else {                
+                updatedPerson.income = updatedPerson.income + (updatedPerson.salaryRemaining ?? 0);
+                delete updatedPerson.salaryRemaining;
+            }
+            return updatedPerson;
+        });
+        updatePersons(updatedPersons);
+        setUseLeftoverMethod(!useLeftoverMethod);
+    };
+
+    const handleDesiredRemainingChange = (index: number, value: number) => {        
+        const updatedPersons = [...persons];
+        if (updatedPersons[index]?.income !== undefined && updatedPersons[index]?.salaryRemaining !== undefined) {
+            const originalIncome = updatedPersons[index].income + updatedPersons[index].salaryRemaining;
+            updatedPersons[index].salaryRemaining = value;
+            updatedPersons[index].income = originalIncome - value;
+            updatePersons(updatedPersons);
+        }
+    };
 
     if (!showSetupForm && !showExpenseForm) {
         return (
@@ -158,13 +149,24 @@ const InputForm: React.FC<InputFormProps> = ({ persons, updatePersons, addExpens
 
     return (
         <div className='maximized-card'>
-            <div 
-                className="section-header clickable"
-                onClick={() => setShowSetupForm(!showSetupForm)}
-            >
-                <h2 className="section-title">
+            <div className="section-header">
+                <h2 
+                    className="section-title clickable"
+                    onClick={() => setShowSetupForm(!showSetupForm)}
+                >
                     Setup Household <span className="toggle-arrow">{showSetupForm ? '⌵' : '❯'}</span>
                 </h2>
+                <div className="switch-container">
+                    <span className="switch-label">Monthly Leftover</span>
+                    <label className="switch">
+                        <input
+                            type="checkbox"
+                            checked={useLeftoverMethod}
+                            onChange={handleSwitchChange}
+                        />
+                        <span className="slider"></span>
+                    </label>
+                </div>
             </div>
 
             {showSetupForm && (
@@ -196,14 +198,30 @@ const InputForm: React.FC<InputFormProps> = ({ persons, updatePersons, addExpens
                             />
                         ))}
                     </div>
+                    {useLeftoverMethod && (
+                        <div className="input-field-container">
+                            <label className="input-label">Desired Remaining Amount</label>
+                            {persons.map((person, index) => (
+                                <input
+                                    key={index}
+                                    className="input-field"
+                                    type="number"
+                                    placeholder={`${index === 0 ? 'First' : 'Second'} person's remaining amount (€)`}
+                                    value={person.salaryRemaining}
+                                    onFocus={handleNumberFocus}
+                                    onChange={(e) => handleDesiredRemainingChange(index, Number(e.target.value))}
+                                />
+                            ))}
+                        </div>
+                    )}
                 </div>
             )}
             
-            <div 
-                className="section-header clickable"
-                onClick={() => setShowExpenseForm(!showExpenseForm)}
-            >
-                <h2 className="section-title">
+            <div className="section-header">
+                <h2 
+                    className="section-title clickable"
+                    onClick={() => setShowExpenseForm(!showExpenseForm)}
+                >
                     Add Expense <span className="toggle-arrow">{showExpenseForm ? '⌵' : '❯'}</span>
                 </h2>
             </div>

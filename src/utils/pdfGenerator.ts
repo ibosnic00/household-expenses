@@ -37,11 +37,12 @@ export const generatePDF = (
 
     // Add person summary table
     autoTable(doc, {
-        head: [['Name', 'Total Paid', 'Expected Contribution']],
+        head: [['Name', 'Total Paid', 'Expected Contribution', 'Savings']],
         body: personSummaries.map(summary => [
             summary.name,
             `${summary.totalPaid.toFixed(2)}€`,
-            `${summary.expectedContribution.toFixed(2)}€`
+            `${summary.expectedContribution.toFixed(2)}€`,
+            `${((persons.find(p => p.name === summary.name)?.income || 0) - summary.expectedContribution).toFixed(2)}€`
         ]),
         startY: 50,
         theme: 'grid',
