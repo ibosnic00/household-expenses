@@ -61,6 +61,63 @@ body {
     background-color: var(--surface-color-hover);
 }
 
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 42px;
+    height: 24px;
+  }
+  
+  .switch-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+  }
+  
+  .switch-label {
+      margin: 1;
+      font-size:1.2cap;
+  }
+  
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+  }
+  
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+  }
+  
+  input:checked + .slider {
+    background-color: #4CAF50;
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(18px);
+  }
+
 .settings-icon {
     font-size: 1.3em;
 }
@@ -134,10 +191,11 @@ body {
     padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;
+    opacity: 0.9;
 }
 
 .button:hover {
-    opacity: 0.9;
+    opacity: 0.7;
 }
 
 @media (max-width: 1024px) {
@@ -316,7 +374,7 @@ select.input-field {
 }
 
 .export-button:hover {
-    opacity: 1;
+    opacity: 0.7;
 }
 
 @media screen and (max-width: 768px) {
@@ -344,6 +402,7 @@ select.input-field {
     .input-field {
         max-width: 90%;  /* Allow inputs to take full width */
         padding: 8px;     /* Larger touch targets */
+        font-size: 16px;  /* Add this line for better readability on mobile */
     }
 
     .card {
@@ -454,5 +513,21 @@ select.input-field {
     .export-button {
         width: 100%;
         margin: 16px 0;
+    }
+
+    .switch {
+        width: 40px; /* Adjust width for smaller screens */
+        height: 24px; /* Adjust height for smaller screens */
+    }
+
+    .slider:before {
+        height: 18px; /* Adjust knob size */
+        width: 18px;  /* Adjust knob size */
+        left: 3px;    /* Adjust position */
+        bottom: 3px;  /* Adjust position */
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(16px); /* Adjust translation for smaller knob */
     }
 }

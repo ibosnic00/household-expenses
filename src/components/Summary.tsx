@@ -14,6 +14,7 @@ interface SummaryProps {
   expectedContributions: number[];
   balances: number[];
   expenses: Expense[];
+  incomes: number[];
 }
 
 const Summary: React.FC<SummaryProps> = ({
@@ -23,6 +24,7 @@ const Summary: React.FC<SummaryProps> = ({
   expectedContributions,
   balances,
   expenses,
+  incomes,
 }) => {
   const chartRef = useRef<ChartJS<"pie">>(null);
 
@@ -38,26 +40,25 @@ const Summary: React.FC<SummaryProps> = ({
       {
         data: Object.values(categoryTotals),
         backgroundColor: [
-          '#FF6384',
-          '#36A2EB',
-          '#FFCE56',
-          '#4BC0C0',
-          '#9966FF',
-          '#FF9F40',
-          '#EA80FC',
-          '#00E676',
-          '#FF5252',
-          '#40C4FF',
-          '#FFD740',
-          '#64FFDA',
-          '#E040FB',
-          '#FF6E40',
-          '#69F0AE',
-          '#FF4081',
-          '#7C4DFF',
-          '#18FFFF',
-          '#B388FF',
-          '#82B1FF',
+          '#5A9BD4',
+          '#D4B483',
+          '#7FB3B3',
+          '#8A7FB3',
+          '#D4A76A',
+          '#C48ACF',
+          '#66B266',
+          '#D46A6A',
+          '#7FB3D4',
+          '#D4C06A',
+          '#A3D4C0',
+          '#B36AB3',
+          '#D48A6A',
+          '#A3D4A3',
+          '#D46A8A',
+          '#8A66D4',
+          '#66D4D4',
+          '#C0A3D4',
+          '#A3B3D4',
         ],
         borderWidth: 1,
       },
@@ -128,6 +129,7 @@ const Summary: React.FC<SummaryProps> = ({
             <th>Paid</th>
             <th>Balance</th>
             <th>Expected</th>
+            <th>Savings</th>
           </tr>
         </thead>
         <tbody>
@@ -139,6 +141,7 @@ const Summary: React.FC<SummaryProps> = ({
                 {balances[index].toFixed(2)}€
               </td>
               <td>{expectedContributions[index].toFixed(2)}€</td>
+              <td>{(incomes[index] - expectedContributions[index]).toFixed(2)}€</td>
             </tr>
           ))}
         </tbody>

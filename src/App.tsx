@@ -3,6 +3,7 @@ import InputForm from './components/InputForm'
 import ExpenseTable from './components/ExpenseTable';
 import Summary from './components/Summary';
 import { Person, Expense } from './types';
+import { calculateExpenseSummary, calculateShares } from './utils/expenseCalculations';
 
 const App: React.FC = () => {
   const [persons, setPersons] = useState<Person[]>([
@@ -14,53 +15,36 @@ const App: React.FC = () => {
   const [totalPaid, setTotalPaid] = useState([0, 0]);
   const [expectedContributions, setExpectedContributions] = useState([0, 0]);
   const [balances, setBalances] = useState([0, 0]);
+  const [useLeftoverMethod, setUseLeftoverMethod] = useState(false);
 
   useEffect(() => {
     calculateSummary();
   }, [persons, expenses]);
 
   const calculateSummary = () => {
-    const totalIncome = persons.reduce((sum, person) => sum + person.income, 0);
-    const incomeRatios = totalIncome > 0 ? persons.map((p) => p.income / totalIncome) : [0.5, 0.5];
-
-    let newTotalExpenses = 0;
-    let newTotalPaid = [0, 0];
-    let newExpectedContributions = [0, 0];
-
-    expenses.forEach((expense) => {
-      newTotalExpenses = Math.round((newTotalExpenses + expense.amount) * 100) / 100;
-
-      if (expense.paidBy === persons[0].name) {
-        newTotalPaid[0] = Math.round((newTotalPaid[0] + expense.amount) * 100) / 100;
-      } else if (expense.paidBy === persons[1].name) {
-        newTotalPaid[1] = Math.round((newTotalPaid[1] + expense.amount) * 100) / 100;
-      } else if (expense.paidBy === 'Both') {
-        newTotalPaid[0] = Math.round((newTotalPaid[0] + expense.contribution[0]) * 100) / 100;
-        newTotalPaid[1] = Math.round((newTotalPaid[1] + expense.contribution[1]) * 100) / 100;
-      }
-
-      if (expense.paidFor === 'Common') {
-        newExpectedContributions[0] += Math.round(expense.amount * incomeRatios[0] * 100) / 100;
-        newExpectedContributions[1] += Math.round(expense.amount * incomeRatios[1] * 100) / 100;
-      } else if (expense.paidFor === persons[0].name) {
-        newExpectedContributions[0] += expense.amount;
-      } else if (expense.paidFor === persons[1].name) {
-        newExpectedContributions[1] += expense.amount;
-      }
-    });
-
-    const newBalances = newTotalPaid.map((paid, i) =>
-      Math.round((paid - newExpectedContributions[i]) * 100) / 100
-    );
-
-    setTotalExpenses(newTotalExpenses);
-    setTotalPaid(newTotalPaid);
-    setExpectedContributions(newExpectedContributions);
-    setBalances(newBalances);
+    const summary = calculateExpenseSummary(persons, expenses);
+    setTotalExpenses(summary.totalExpenses);
+    setTotalPaid(summary.totalPaid);
+    setExpectedContributions(summary.expectedContributions);
+    setBalances(summary.balances);
   };
 
   const updatePersons = (newPersons: Person[]) => {
+    const updatedExpenses = expenses.map(expense => {
+      const [firstPersonShare, secondPersonShare] = calculateShares(
+        expense.amount,
+        expense.paidFor,
+        newPersons
+      );
+      return {
+        ...expense,
+        firstPersonShare,
+        secondPersonShare
+      };
+    });
+
     setPersons(newPersons);
+    setExpenses(updatedExpenses);
   };
 
   const addExpense = (expense: Expense) => {
@@ -81,6 +65,8 @@ const App: React.FC = () => {
               persons={persons}
               updatePersons={updatePersons}
               addExpense={addExpense}
+              useLeftoverMethod={useLeftoverMethod}
+              setUseLeftoverMethod={setUseLeftoverMethod}
             />
           </div>
           <div className="card"><ExpenseTable
@@ -94,6 +80,7 @@ const App: React.FC = () => {
         <div className="right-column">
           <Summary
             persons={persons}
+            incomes={persons.map(p => p.income)}
             totalExpenses={totalExpenses}
             totalPaid={totalPaid}
             expectedContributions={expectedContributions}
