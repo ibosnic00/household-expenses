@@ -6,20 +6,41 @@ import { Person, Expense } from './types';
 import { calculateExpenseSummary, calculateShares } from './utils/expenseCalculations';
 
 const App: React.FC = () => {
-  const [persons, setPersons] = useState<Person[]>([
-    { name: '', income: 0 },
-    { name: '', income: 0 },
-  ]);
-  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [persons, setPersons] = useState<Person[]>(() => {
+    const savedPersons = localStorage.getItem('persons');
+    return savedPersons ? JSON.parse(savedPersons) : [
+      { name: '', income: 0 },
+      { name: '', income: 0 },
+    ];
+  });
+  const [expenses, setExpenses] = useState<Expense[]>(() => {
+    const savedExpenses = localStorage.getItem('expenses');
+    return savedExpenses ? JSON.parse(savedExpenses) : [];
+  });
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [totalPaid, setTotalPaid] = useState([0, 0]);
   const [expectedContributions, setExpectedContributions] = useState([0, 0]);
   const [balances, setBalances] = useState([0, 0]);
-  const [useLeftoverMethod, setUseLeftoverMethod] = useState(false);
+  const [useLeftoverMethod, setUseLeftoverMethod] = useState(() => {
+    const savedMethod = localStorage.getItem('useLeftoverMethod');
+    return savedMethod ? JSON.parse(savedMethod) : false;
+  });
 
   useEffect(() => {
     calculateSummary();
   }, [persons, expenses]);
+
+  useEffect(() => {
+    localStorage.setItem('persons', JSON.stringify(persons));
+  }, [persons]);
+
+  useEffect(() => {
+    localStorage.setItem('expenses', JSON.stringify(expenses));
+  }, [expenses]);
+
+  useEffect(() => {
+    localStorage.setItem('useLeftoverMethod', JSON.stringify(useLeftoverMethod));
+  }, [useLeftoverMethod]);
 
   const calculateSummary = () => {
     const summary = calculateExpenseSummary(persons, expenses);
